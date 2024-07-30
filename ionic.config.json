@@ -1,0 +1,7 @@
+{
+  "name": "kalasan-tree-mapping",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
