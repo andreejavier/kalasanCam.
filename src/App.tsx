@@ -10,10 +10,11 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
+import { ellipse, square, triangle, home } from 'ionicons/icons';
 import Tab1 from './pages/Tab1';
 import Tab2 from './pages/Tab2';
 import Tab3 from './pages/Tab3';
+import Dashboard from './pages/Dashboard'; // Import Dashboard
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -31,15 +32,7 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
+/* Ionic Dark Mode */
 import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
@@ -61,6 +54,9 @@ const App: React.FC = () => (
           <Route path="/tab3">
             <Tab3 />
           </Route>
+          <Route exact path="/dashboard">
+            <Dashboard />
+          </Route>
           <Route exact path="/">
             <Redirect to="/tab1" />
           </Route>
@@ -77,6 +73,10 @@ const App: React.FC = () => (
           <IonTabButton tab="tab3" href="/tab3">
             <IonIcon aria-hidden="true" icon={square} />
             <IonLabel>Tab 3</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="dashboard" href="/dashboard">
+            <IonIcon aria-hidden="true" icon={home} />
+            <IonLabel>Dashboard</IonLabel>
           </IonTabButton>
         </IonTabBar>
       </IonTabs>

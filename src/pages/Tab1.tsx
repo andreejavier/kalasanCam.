@@ -3,42 +3,16 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonImg
 import { Camera, CameraResultType } from '@capacitor/camera';
 import { Geolocation } from '@capacitor/geolocation';
 import ExploreContainer from '../components/ExploreContainer';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import './Tab1.css';
 import EXIF from 'exif-js';
-
-// Fix for default icon issues with Webpack
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
 
 const Tab1: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [position, setPosition] = useState<[number, number] | null>(null);
-  const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
   const [description, setDescription] = useState<string>('');
   const [speciesName, setSpeciesName] = useState<string>('');
   const [timestamp, setTimestamp] = useState<string>('');
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
-
-  useEffect(() => {
-    const getCurrentPosition = async () => {
-      const coordinates = await Geolocation.getCurrentPosition();
-      const { latitude, longitude } = coordinates.coords;
-      setUserPosition([latitude, longitude]);
-    };
-
-    getCurrentPosition();
-  }, []);
 
   const captureImage = async () => {
     const image = await Camera.getPhoto({
@@ -74,12 +48,12 @@ const Tab1: React.FC = () => {
       const reader = new FileReader();
 
       reader.onloadend = () => {
-        EXIF.getData(reader.result as string, function() {
-          const lat = EXIF.getTag(this, "GPSLatitude");
-          const lon = EXIF.getTag(this, "GPSLongitude");
-          const latRef = EXIF.getTag(this, "GPSLatitudeRef");
-          const lonRef = EXIF.getTag(this, "GPSLongitudeRef");
-          const dateTime = EXIF.getTag(this, "DateTime");
+        EXIF.getData(reader.result as any, function() {
+          const lat = EXIF.getTag(globalThis, "GPSLatitude");
+          const lon = EXIF.getTag(globalThis, "GPSLongitude");
+          const latRef = EXIF.getTag(globalThis, "GPSLatitudeRef");
+          const lonRef = EXIF.getTag(globalThis, "GPSLongitudeRef");
+          const dateTime = EXIF.getTag(globalThis, "DateTime");
 
           if (lat && lon && latRef && lonRef) {
             const latitude = convertDMSToDD(lat, latRef);
@@ -113,7 +87,7 @@ const Tab1: React.FC = () => {
     if (position && image) {
       // Logic to upload image and metadata
       try {
-        // Example of uploading image (you'll need to adjust this based on your server or storage setup)
+        // Uploading image (server or storage setup)
         const response = await fetch(image);
         const blob = await response.blob();
         const formData = new FormData();
@@ -155,61 +129,41 @@ const Tab1: React.FC = () => {
             <IonTitle size="large">Mapping Endemic Tree Species</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <ExploreContainer name="Map and EXIF Integration" />
+        <ExploreContainer name="" />
         <IonButton onClick={captureImage}>Capture Image</IonButton>
         <input type="file" accept="image/*" onChange={handleImageUpload} />
-        {image && <IonImg src={image} />}
-        {userPosition && (
-          <MapContainer center={userPosition} zoom={13} style={{ height: '400px', width: '100%' }}>
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            />
-            <Marker position={userPosition}>
-              <Popup>Your current location</Popup>
-            </Marker>
-            {position && (
-              <Marker position={position}>
-                <Popup>
-                  <div>
-                    <p>{description}</p>
-                    <p><strong>Species:</strong> {speciesName}</p>
-                    <p><strong>Timestamp:</strong> {timestamp}</p>
-                    <p><strong>Latitude:</strong> {latitude?.toFixed(6)}</p>
-                    <p><strong>Longitude:</strong> {longitude?.toFixed(6)}</p>
-                  </div>
-                </Popup>
-              </Marker>
-            )}
-          </MapContainer>
-        )}
-        {image && (
-          <div className="floating-form">
-            <IonItem>
-              <IonLabel position="floating">Description</IonLabel>
-              <IonInput value={description} onIonInput={(e: any) => setDescription(e.target.value)} />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="floating">Species Name</IonLabel>
-              <IonInput value={speciesName} onIonInput={(e: any) => setSpeciesName(e.target.value)} />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="floating">Timestamp</IonLabel>
-              <IonInput value={timestamp} disabled />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="floating">Latitude</IonLabel>
-              <IonInput value={latitude?.toFixed(6) || ''} disabled />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="floating">Longitude</IonLabel>
-              <IonInput value={longitude?.toFixed(6) || ''} disabled />
-            </IonItem>
-            <IonButton onClick={handleSubmit} expand="full" style={{ marginTop: '10px' }}>
-              Submit
-            </IonButton>
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', marginTop: '20px' }}>
+          {image && (
+            <IonImg src={image} style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'contain' }} />
+          )}
+          {image && (
+            <div>
+              <IonItem>
+                <IonLabel position="floating">Description</IonLabel>
+                <IonInput value={description} onIonInput={(e: any) => setDescription(e.target.value)} />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating">Species Name</IonLabel>
+                <IonInput value={speciesName} onIonInput={(e: any) => setSpeciesName(e.target.value)} />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating">Timestamp</IonLabel>
+                <IonInput value={timestamp} disabled />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating">Latitude</IonLabel>
+                <IonInput value={latitude?.toFixed(6) || ''} disabled />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating">Longitude</IonLabel>
+                <IonInput value={longitude?.toFixed(6) || ''} disabled />
+              </IonItem>
+              <IonButton onClick={handleSubmit} expand="full" style={{ marginTop: '10px' }}>
+                Submit
+              </IonButton>
+            </div>
+          )}
+        </div>
       </IonContent>
     </IonPage>
   );
