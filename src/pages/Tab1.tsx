@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonImg, IonInput, IonLabel, IonItem } from '@ionic/react';
 import { Camera, CameraResultType } from '@capacitor/camera';
-import { Geolocation } from '@capacitor/geolocation';
-import ExploreContainer from '../components/ExploreContainer';
 import EXIF from 'exif-js';
 
 const Tab1: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
-  const [position, setPosition] = useState<[number, number] | null>(null);
   const [description, setDescription] = useState<string>('');
   const [speciesName, setSpeciesName] = useState<string>('');
   const [timestamp, setTimestamp] = useState<string>('');
@@ -58,7 +55,6 @@ const Tab1: React.FC = () => {
           if (lat && lon && latRef && lonRef) {
             const latitude = convertDMSToDD(lat, latRef);
             const longitude = convertDMSToDD(lon, lonRef);
-            setPosition([latitude, longitude]);
             setLatitude(latitude);
             setLongitude(longitude);
             setTimestamp(dateTime || 'Unknown');
@@ -84,10 +80,9 @@ const Tab1: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (position && image) {
+    if (latitude !== null && longitude !== null && image) {
       // Logic to upload image and metadata
       try {
-        // Uploading image (server or storage setup)
         const response = await fetch(image);
         const blob = await response.blob();
         const formData = new FormData();
@@ -116,6 +111,15 @@ const Tab1: React.FC = () => {
     }
   };
 
+  const handleClear = () => {
+    setImage(null);
+    setDescription('');
+    setSpeciesName('');
+    setTimestamp('');
+    setLatitude(null);
+    setLongitude(null);
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -129,12 +133,11 @@ const Tab1: React.FC = () => {
             <IonTitle size="large">Mapping Endemic Tree Species</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <ExploreContainer name="" />
         <IonButton onClick={captureImage}>Capture Image</IonButton>
         <input type="file" accept="image/*" onChange={handleImageUpload} />
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', marginTop: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', marginTop: '40px' }}>
           {image && (
-            <IonImg src={image} style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'contain' }} />
+            <IonImg src={image} style={{ maxWidth: '400px', maxHeight: '400px', objectFit: 'contain' }} />
           )}
           {image && (
             <div>
@@ -158,9 +161,10 @@ const Tab1: React.FC = () => {
                 <IonLabel position="floating">Longitude</IonLabel>
                 <IonInput value={longitude?.toFixed(6) || ''} disabled />
               </IonItem>
-              <IonButton onClick={handleSubmit} expand="full" style={{ marginTop: '10px' }}>
-                Submit
-              </IonButton>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <IonButton onClick={handleSubmit} expand="full">Submit</IonButton>
+                <IonButton onClick={handleClear} expand="full" color="medium">Clear</IonButton>
+              </div>
             </div>
           )}
         </div>
