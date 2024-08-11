@@ -1,5 +1,6 @@
 import React from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -9,11 +10,17 @@ const containerStyle = {
 };
 
 const center = {
-  lat: -3.745, // Default center, can be updated based on user location or default values
+  lat: -3.745,
   lng: -38.523,
 };
 
 const Dashboard: React.FC = () => {
+  const history = useHistory();
+
+  const handleNavigation = (path: string) => {
+    history.push(path);
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -22,24 +29,29 @@ const Dashboard: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Dashboard</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <MapContainer center={center} zoom={10} style={containerStyle}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker position={center}>
-            <Popup>
-              <div>
-                <p>Default Location</p>
-              </div>
-            </Popup>
-          </Marker>
-        </MapContainer>
+        <IonGrid>
+          <IonRow>
+            <IonCol>
+              <IonButton expand="block" onClick={() => handleNavigation('/manage-users')}>
+                Manage Users
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          <IonRow>
+            <IonCol>
+              <IonButton expand="block" onClick={() => handleNavigation('/manage-records')}>
+                Manage Records
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          <IonRow>
+            <IonCol>
+              <IonButton expand="block" onClick={() => handleNavigation('/explore-map')}>
+                View Map
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

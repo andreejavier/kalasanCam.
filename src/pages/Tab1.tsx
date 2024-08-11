@@ -12,6 +12,7 @@ const Tab1: React.FC = () => {
   const [longitude, setLongitude] = useState<number | null>(null);
 
   const captureImage = async () => {
+    try {
     const image = await Camera.getPhoto({
       quality: 90,
       allowEditing: false,
@@ -22,6 +23,9 @@ const Tab1: React.FC = () => {
     setImage(imageUri || null);
     if (imageUri) {
       await extractGPSData(imageUri);
+      }
+    } catch (error) {
+      console.error('Error capturing image:', error);
     }
   };
 
